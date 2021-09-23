@@ -48,7 +48,7 @@ class MigraveKBInterface(object):
             print('Could not store the entry: \n {}'.format(performance_record))
         return result.acknowledged
 
-    def get_performance_records(self, person_name: str = '', game_id: str = '') -> Dict:
+    def get_performance_records(self, person_name: str = '', game_id: str = '') -> Sequence[Dict]:
         '''Returns all the performance records for a given person name and game id. 
         If 'collection_name' or 'game_id' is not specified, they are ignored while finding 
         the performance records. If neither 'collection_name' nor 'game_id' is
