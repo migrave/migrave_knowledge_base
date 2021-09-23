@@ -1,6 +1,6 @@
 """Utilities for working with MongoDB database.
 
-A shortened version of
+Based on
 https://github.com/ropod-project/black-box-tools/blob/master/black_box_tools/db_utils.py
 """
 
@@ -8,7 +8,6 @@ import os
 from typing import Tuple, Sequence, Dict
 import subprocess
 import pymongo as pm
-import time
 
 class DBUtils(object):
     @staticmethod
@@ -189,6 +188,33 @@ class DBUtils(object):
         collection = db[collection_name]
         doc = collection.find_one(sort=[('timestamp', pm.ASCENDING)])
         return doc
+
+    @staticmethod
+    def get_specific_docs(db_name: str, collection_name: str, person_name: str = '', game_id: str = '') -> Dict:
+        '''Returns all the documents for a given person name and game id. If 'collection_name' or 'game_id' is 
+        not specified, they are ignored while finding the documents. If neither 'collection_name' nor 'game_id' is
+        specified, all the possible documents are returned.
+
+        Keyword arguments:
+        @param db_name: str -- name of a MongoDB database
+        @param collection_name: str -- name of a collection
+        @param person_name: str -- name of the child
+        @param game_id: str -- id of the game
+
+        '''
+        client = DBUtils.get_db_client()
+        db = client[db_name]
+        collection = db[collection_name]
+
+        if person_name and game_id:
+            docs_cursor = collection.find({'person_name': person_name, 'game_activity_game_id': game_id})
+        elif not person_name and game_id:
+            docs_cursor = collection.find({'game_activity_game_id': game_id})
+        elif person_name and not game_id:
+            docs_cursor = collection.find({'person_name': person_name})
+        else:
+            docs_cursor = collection.find()
+        return [doc for doc in docs_cursor]
 
     @staticmethod
     def get_newest_doc(db_name: str, collection_name: str) -> Dict:
